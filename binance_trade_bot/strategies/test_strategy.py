@@ -163,7 +163,7 @@ class Strategy(AutoTrader):
 
         if self.rsi:
             if self.panicked:
-                if self.to_coin_direction >= 0 and (self.rsi > self.pre_rsi <= 30 or self.pre_rsi < self.rsi > 50) or self.rsi < 20 or base_time >= self.reinit_idle or self.strikes >= 3:
+                if self.to_coin_direction >= 0 and (self.rsi > self.pre_rsi <= 30 or self.pre_rsi < self.rsi > 50) or self.rsi < 20 or base_time >= self.reinit_idle or self.strikes >= 2:
                     print("")
                     self.logger.info(f"Will be jumping from {current_coin} to {self.best_pair.to_coin_id}")
                     self.transaction_through_bridge(self.best_pair, round(self.from_coin_price, self.d), round(self.to_coin_price, self.v))
@@ -217,7 +217,7 @@ class Strategy(AutoTrader):
                     self.strikes = 0
                     self.panic_time = self.manager.now().replace(second=0, microsecond=0) + timedelta(minutes=1)#int(self.config.RSI_CANDLE_TYPE))
 
-                elif self.strikes >= 3:
+                elif self.strikes >= 2:
                     print("")
                     self.logger.info("!!! Striked out !!!")
                     self.active_threshold = self.from_coin_price
@@ -273,7 +273,7 @@ class Strategy(AutoTrader):
             self.panic_time = self.manager.now().replace(second=0, microsecond=0) + timedelta(seconds=1)
 
             if self.macd and (self.rv_pre_rsi < self.rv_rsi and ((self.from_coin_direction > 0 and self.from_coin_price > self.active_threshold) or self.volume[-1] / self.volume_sma >= 1.5) or self.from_coin_direction > self.dir_threshold) or self.from_coin_price < self.active_threshold < self.next_price and self.equi or self.rv_rsi < 20 or min(self.vector[:-2]) >= self.vector[-1]: # or self.strikes >= 3:
-                if self.strikes >= 3:
+                if self.strikes >= 2:
                     self.logger.info("!!! Striked out !!!")
                     self.active_threshold = self.from_coin_price
                 
