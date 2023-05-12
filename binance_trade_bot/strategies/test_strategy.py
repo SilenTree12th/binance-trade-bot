@@ -603,7 +603,8 @@ class Strategy(AutoTrader):
             rv_rsi = talib.RSI(rv_closes, init_rsi_length)
             rv_tema = talib.TEMA(rv_closes, init_rsi_length)
             
-            macd, macdsignal, macdhist = talib.MACD(rv_closes, fastperiod=12, slowperiod=26, signalperiod=9)
+            calc = self.config.RSI_LENGTH
+            macd, macdsignal, macdhist = talib.MACD(rv_closes, fastperiod=int(round(self.calcval*12/calc,0)), slowperiod=int(round(self.calcval*26/calc,0)), signalperiod=int(round(self.calcval*9/calc,0)))
                 
             if macd[-1] - macdsignal[-1] > macd[-2] - macdsignal[-2]:
                 self.macd = True
