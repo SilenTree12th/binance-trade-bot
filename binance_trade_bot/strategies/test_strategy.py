@@ -278,7 +278,7 @@ class Strategy(AutoTrader):
                     ##self.logger.info("!!! Striked out !!!")
                     #self.active_threshold = self.from_coin_price
                 
-                elif self.rv_rsi < 20 or min(self.vector[:-2]) >= self.vector[-1] or self.from_coin_price < self.active_threshold < self.next_price and self.equi:
+                if self.rv_rsi < 20 or min(self.vector[:-2]) >= self.vector[-1] or self.from_coin_price < self.active_threshold < self.next_price and self.equi:
                     print("")
                     self.logger.info("!!! Target buy !!!")
                     self.from_coin_price = round(min(self.from_coin_price, self.active_threshold), self.d)
