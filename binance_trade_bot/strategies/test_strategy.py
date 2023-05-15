@@ -275,6 +275,7 @@ class Strategy(AutoTrader):
             if self.macd and (self.rv_pre_rsi < self.rv_rsi and ((self.from_coin_direction > 0 and self.from_coin_price > self.active_threshold) or self.volume[-1] / self.volume_sma >= 1.5) or self.from_coin_direction > self.dir_threshold) or self.from_coin_price < self.active_threshold < self.next_price and self.equi or self.rv_rsi < 20 or min(self.vector[:-2]) >= self.vector[-1] or self.strikes >= self.calcval:
                 
                 if self.strikes >= self.calcval:
+                    print("")
                     self.logger.info("!!! Strike out buy !!!")
                     self.active_threshold = self.from_coin_price
                 
