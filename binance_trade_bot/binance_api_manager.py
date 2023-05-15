@@ -463,6 +463,10 @@ class BinanceAPIManager:
 
     def buy_alt(self, origin_coin: Coin, target_coin: Coin, buy_price: float) -> BinanceOrder:
         return self.retry(self._buy_alt, origin_coin, target_coin, buy_price)
+    
+    def buy_part(self, origin_coin: Coin, target_coin: Coin, buy_price: float) -> BinanceOrder:
+        buy_quantity = self.get_min_notional(origin_coin.symbol, target_coin.symbol)
+        return self.retry(self._buy_alt, origin_coin, target_coin, buy_price, buy_quantity)
 
     def _buy_quantity(
         self, origin_symbol: str, target_symbol: str, target_balance: float = None, from_coin_price: float = None
@@ -494,10 +498,10 @@ class BinanceAPIManager:
         target_balance = self.get_currency_balance(target_symbol)
         from_coin_price = self.get_buy_price(origin_symbol + target_symbol)
 
-        buy_max_price_change = float(self.config.BUY_MAX_PRICE_CHANGE)
-        if from_coin_price > buy_price * (1.0 + buy_max_price_change):
-            self.logger.info("Buy price became higher, cancel buy")
-            return None
+        #buy_max_price_change = float(self.config.BUY_MAX_PRICE_CHANGE)
+        #if from_coin_price > buy_price * (1.0 + buy_max_price_change):
+            #self.logger.info("Buy price became higher, cancel buy")
+            #return None
         from_coin_price = min(buy_price, from_coin_price)
         trade_log = self.db.start_trade_log(origin_coin, target_coin, False)
 
@@ -546,6 +550,10 @@ class BinanceAPIManager:
 
     def sell_alt(self, origin_coin: Coin, target_coin: Coin, sell_price: float) -> BinanceOrder:
         return self.retry(self._sell_alt, origin_coin, target_coin, sell_price)
+    
+    def sell_part(self, origin_coin: Coin, target_coin: Coin, sell_price: float) -> BinanceOrder:
+        sell_quantity = self.get_min_notional(origin_coin.symbol, target_coin.symbol)
+        return self.retry(self._sell_alt, origin_coin, target_coin, sell_price, sell_quantity)
 
     def _sell_quantity(self, origin_symbol: str, target_symbol: str, origin_balance: float = None):
         origin_balance = origin_balance or self.get_currency_balance(origin_symbol)
@@ -553,7 +561,7 @@ class BinanceAPIManager:
         origin_tick = self.get_alt_tick(origin_symbol, target_symbol)
         return math.floor(origin_balance * 10 ** origin_tick) / float(10 ** origin_tick)
 
-    def _sell_alt(self, origin_coin: Coin, target_coin: Coin, sell_price: float):  # pylint: disable=too-many-locals
+    def _sell_alt(self, origin_coin: Coin, target_coin: Coin, sell_price: float, sell_quantity: float=None):  # pylint: disable=too-many-locals
         """
         Sell altcoin
         """
@@ -568,18 +576,21 @@ class BinanceAPIManager:
         target_balance = self.get_currency_balance(target_symbol)
         from_coin_price = self.get_sell_price(origin_symbol + target_symbol)
 
-        sell_max_price_change = float(self.config.SELL_MAX_PRICE_CHANGE)
-        if from_coin_price < sell_price * (1.0 - sell_max_price_change):
-            self.logger.info("Sell price became lower, skipping sell")
-            return None  # skip selling below price from ratio
+        #sell_max_price_change = float(self.config.SELL_MAX_PRICE_CHANGE)
+        #if from_coin_price < sell_price * (1.0 - sell_max_price_change):
+            #self.logger.info("Sell price became lower, skipping sell")
+            #return None  # skip selling below price from ratio
         from_coin_price = max(from_coin_price, sell_price)
 
         trade_log = self.db.start_trade_log(origin_coin, target_coin, True)
+        
+        if sell_quantity is None:
+            order_quantity = self._sell_quantity(origin_symbol, target_symbol, target_balance, from_coin_price)
+        else:
+            order_quantity = sell_quantity
+        self.logger.info(f"SELL QTY {order_quantity} of <{origin_symbol}>")
 
-        order_quantity = self._sell_quantity(origin_symbol, target_symbol, origin_balance)
-        self.logger.info(f"Selling {order_quantity} of {origin_symbol}")
-
-        self.logger.info(f"Balance is {origin_balance}")
+        #self.logger.info(f"Balance is {origin_balance}")
         order = None
         order_guard = self.stream_manager.acquire_order_guard()
         while order is None:
