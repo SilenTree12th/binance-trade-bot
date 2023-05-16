@@ -553,7 +553,7 @@ class BinanceAPIManager:
         return self.retry(self._sell_alt, origin_coin, target_coin, sell_price)
     
     def sell_part(self, origin_coin: Coin, target_coin: Coin, sell_price: float) -> BinanceOrder:
-        origin_balance = self.get_min_notional(origin_coin.symbol, target_coin.symbol)
+        origin_balance = self.get_min_notional(origin_coin.symbol, target_coin.symbol) / sell_price
         sell_quantity = self._sell_quantity(origin_coin.symbol, target_coin.symbol, origin_balance)
         return self.retry(self._sell_alt, origin_coin, target_coin, sell_price, sell_quantity)
 
