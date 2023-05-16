@@ -465,7 +465,8 @@ class BinanceAPIManager:
         return self.retry(self._buy_alt, origin_coin, target_coin, buy_price)
     
     def buy_part(self, origin_coin: Coin, target_coin: Coin, buy_price: float) -> BinanceOrder:
-        buy_quantity = self.get_min_notional(origin_coin.symbol, target_coin.symbol) / buy_price
+        target_balance = self.get_min_notional(origin_coin.symbol, target_coin.symbol)
+        buy_quantity = self._buy_quantity(origin_coin.symbol, target_coin.symbol, target_balance, buy_price)
         return self.retry(self._buy_alt, origin_coin, target_coin, buy_price, buy_quantity)
 
     def _buy_quantity(
@@ -552,7 +553,8 @@ class BinanceAPIManager:
         return self.retry(self._sell_alt, origin_coin, target_coin, sell_price)
     
     def sell_part(self, origin_coin: Coin, target_coin: Coin, sell_price: float) -> BinanceOrder:
-        sell_quantity = self.get_min_notional(origin_coin.symbol, target_coin.symbol) / sell_price
+        origin_balance = self.get_min_notional(origin_coin.symbol, target_coin.symbol)
+        sell_quantity = self._sell_quantity(origin_coin.symbol, target_coin.symbol, origin_balance)
         return self.retry(self._sell_alt, origin_coin, target_coin, sell_price, sell_quantity)
 
     def _sell_quantity(self, origin_symbol: str, target_symbol: str, origin_balance: float = None):
