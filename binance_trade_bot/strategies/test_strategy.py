@@ -85,7 +85,7 @@ class Strategy(AutoTrader):
         allowed_idle_time = self.reinit_threshold
         allowed_rsi_time = self.reinit_rsi
 
-        if self.macd:
+        if not self.macd:
             self.from_coin_price = self.manager.get_buy_price(current_coin + self.config.BRIDGE)
 
         else:
