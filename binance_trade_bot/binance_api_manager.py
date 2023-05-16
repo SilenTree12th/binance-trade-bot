@@ -466,17 +466,20 @@ class BinanceAPIManager:
     
     def buy_part(self, origin_coin: Coin, target_coin: Coin, buy_price: float) -> BinanceOrder:
         target_balance = self.get_min_notional(origin_coin.symbol, target_coin.symbol)
-        buy_quantity = self._buy_quantity(origin_coin.symbol, target_coin.symbol, target_balance, buy_price)
+        buy_quantity = self._buy_quantity(origin_coin.symbol, target_coin.symbol, target_balance, buy_price, True)
         return self.retry(self._buy_alt, origin_coin, target_coin, buy_price, buy_quantity)
 
     def _buy_quantity(
-        self, origin_symbol: str, target_symbol: str, target_balance: float = None, from_coin_price: float = None
+        self, origin_symbol: str, target_symbol: str, target_balance: float = None, from_coin_price: float = None, partial: bool=False
     ):
         target_balance = target_balance or self.get_currency_balance(target_symbol)
         from_coin_price = from_coin_price or self.get_buy_price(origin_symbol + target_symbol)
 
         origin_tick = self.get_alt_tick(origin_symbol, target_symbol)
-        return math.ceil(target_balance * 10 ** origin_tick / from_coin_price) / float(10 ** origin_tick)
+        if not partial:
+            return math.floor(target_balance * 10 ** origin_tick / from_coin_price) / float(10 ** origin_tick)
+        else:
+            return math.ceil(target_balance * 10 ** origin_tick / from_coin_price) / float(10 ** origin_tick)
 
     @staticmethod
     def float_as_decimal_str(num: float):
@@ -554,14 +557,17 @@ class BinanceAPIManager:
     
     def sell_part(self, origin_coin: Coin, target_coin: Coin, sell_price: float) -> BinanceOrder:
         origin_balance = self.get_min_notional(origin_coin.symbol, target_coin.symbol) / sell_price
-        sell_quantity = self._sell_quantity(origin_coin.symbol, target_coin.symbol, origin_balance)
+        sell_quantity = self._sell_quantity(origin_coin.symbol, target_coin.symbol, origin_balance, True)
         return self.retry(self._sell_alt, origin_coin, target_coin, sell_price, sell_quantity)
 
-    def _sell_quantity(self, origin_symbol: str, target_symbol: str, origin_balance: float = None):
+    def _sell_quantity(self, origin_symbol: str, target_symbol: str, origin_balance: float = None, partial: bool=False):
         origin_balance = origin_balance or self.get_currency_balance(origin_symbol)
 
         origin_tick = self.get_alt_tick(origin_symbol, target_symbol)
-        return math.ceil(origin_balance * 10 ** origin_tick) / float(10 ** origin_tick)
+        if not partial:
+            return math.floor(origin_balance * 10 ** origin_tick) / float(10 ** origin_tick)
+        else:
+            return math.ceil(origin_balance * 10 ** origin_tick) / float(10 ** origin_tick)
 
     def _sell_alt(self, origin_coin: Coin, target_coin: Coin, sell_price: float, sell_quantity: float=None):  # pylint: disable=too-many-locals
         """
