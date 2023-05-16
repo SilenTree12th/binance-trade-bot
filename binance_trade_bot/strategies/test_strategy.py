@@ -182,11 +182,11 @@ class Strategy(AutoTrader):
         if not self.macd and base_time >= self.panic_time:
             n = min(len(self.reverse_price_history), self.calcval)
             stdev = st.stdev(numpy.array(self.reverse_price_history[-n:]))
-            self.dir_threshold = stdev / self.rv_tema * -100
+            self.dir_threshold = stdev / self.active_threshold * -100
 
             self.panic_time = self.manager.now().replace(second=0, microsecond=0) + timedelta(seconds=1)
 
-            if can_buy and ((self.rv_pre_rsi > self.rv_rsi and ((self.from_coin_direction < 0 and self.from_coin_price < self.active_threshold) or self.volume[-1] / self.volume_sma >= 1.5) or self.from_coin_direction < self.dir_threshold) or self.from_coin_price < self.active_threshold < self.next_price and self.equi or self.rv_rsi < 20 or min(self.vector[:-2]) >= self.vector[-1] or self.strikes >= self.calcval):
+            if can_buy and (self.rv_pre_rsi > self.rv_rsi and self.volume[-1] / self.volume_sma >= 1.5 or self.from_coin_direction < self.dir_threshold or self.from_coin_price < self.active_threshold < self.next_price and self.equi or self.rv_rsi < 20 or min(self.vector[:-2]) >= self.vector[-1] or self.strikes >= self.calcval):
                 if self.strikes >= self.calcval:
                     print("")
                     self.logger.info("!!! Strike out buy !!!")
@@ -218,7 +218,7 @@ class Strategy(AutoTrader):
                     #self.active_threshold = 0
 
                 else:
-                    self.active_threshold = min(self.from_coin_price * 0.998, self.from_coin_price - stdev) #max(self.reverse_price_history) * 3
+                    self.active_threshold = self.from_coin_price * 0.998
                     self.dir_threshold = 0
                     self.equi = False
                     self.fair_price = 0
@@ -230,11 +230,11 @@ class Strategy(AutoTrader):
             #m = max(2 - (1+self.win/balance)**(1/(self.jumps)), 2 - 2**(1/(self.jumps)))-0.001
             n = min(len(self.reverse_price_history), self.calcval)
             stdev = st.stdev(numpy.array(self.reverse_price_history[-n:]))# * 0.73313783
-            self.dir_threshold = stdev / self.rv_tema * 100
+            self.dir_threshold = stdev / self.active_threshold * 100
 
             self.panic_time = self.manager.now().replace(second=0, microsecond=0) + timedelta(seconds=1)
 
-            if can_sell and ((self.rv_pre_rsi < self.rv_rsi and ((self.from_coin_direction > 0 and self.from_coin_price > self.active_threshold) or self.volume[-1] / self.volume_sma >= 1.5) or self.from_coin_direction > self.dir_threshold) or self.from_coin_price > self.active_threshold > self.next_price and self.equi or self.rv_rsi > 80 or max(self.vector[:-2]) <= self.vector[-1] or self.strikes >= self.calcval):
+            if can_sell and (self.rv_pre_rsi < self.rv_rsi and self.volume[-1] / self.volume_sma >= 1.5 or self.from_coin_direction > self.dir_threshold or self.from_coin_price > self.active_threshold > self.next_price and self.equi or self.rv_rsi > 80 or max(self.vector[:-2]) <= self.vector[-1] or self.strikes >= self.calcval):
                 
                 if self.strikes >= self.calcval:
                     print("")
@@ -267,7 +267,7 @@ class Strategy(AutoTrader):
                     #self.active_threshold = max(self.reverse_price_history) * 3
 
                 else:
-                    self.active_threshold = max(self.from_coin_price * 1.002, self.from_coin_price + stdev)
+                    self.active_threshold = self.from_coin_price * 1.002
                     self.dir_threshold = 0
                     self.equi = False
                     self.fair_price = 0
