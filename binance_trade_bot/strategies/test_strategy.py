@@ -37,7 +37,7 @@ class Strategy(AutoTrader):
         self.v = 3
         self.macd = False
         self.strikes = 0
-        self.active_threshold = 0
+        self.active_threshold = self.manager.get_buy_price(self.db.get_current_coin() + self.config.BRIDGE)
         self.dir_threshold = 0
         self.Res_high = 0
         self.Res_mid = 0
