@@ -476,7 +476,7 @@ class BinanceAPIManager:
         from_coin_price = from_coin_price or self.get_buy_price(origin_symbol + target_symbol)
 
         origin_tick = self.get_alt_tick(origin_symbol, target_symbol)
-        return math.floor(target_balance * 10 ** origin_tick / from_coin_price) / float(10 ** origin_tick)
+        return math.ceil(target_balance * 10 ** origin_tick / from_coin_price) / float(10 ** origin_tick)
 
     @staticmethod
     def float_as_decimal_str(num: float):
@@ -561,7 +561,7 @@ class BinanceAPIManager:
         origin_balance = origin_balance or self.get_currency_balance(origin_symbol)
 
         origin_tick = self.get_alt_tick(origin_symbol, target_symbol)
-        return math.floor(origin_balance * 10 ** origin_tick) / float(10 ** origin_tick)
+        return math.ceil(origin_balance * 10 ** origin_tick) / float(10 ** origin_tick)
 
     def _sell_alt(self, origin_coin: Coin, target_coin: Coin, sell_price: float, sell_quantity: float=None):  # pylint: disable=too-many-locals
         """
