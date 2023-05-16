@@ -179,14 +179,14 @@ class Strategy(AutoTrader):
         if sell_balance and sell_balance * self.from_coin_price >= self.manager.get_min_notional(panic_pair.from_coin.symbol, self.config.BRIDGE.symbol):
             can_sell = True
             
-        if not self.macd and base_time >= self.panic_time and can_buy:
+        if not self.macd and base_time >= self.panic_time:
             n = min(len(self.reverse_price_history), self.calcval)
             stdev = st.stdev(numpy.array(self.reverse_price_history[-n:]))
             self.dir_threshold = stdev / self.rv_tema * -100
 
             self.panic_time = self.manager.now().replace(second=0, microsecond=0) + timedelta(seconds=1)
 
-            if (self.rv_pre_rsi > self.rv_rsi and ((self.from_coin_direction < 0 and self.from_coin_price < self.active_threshold) or self.volume[-1] / self.volume_sma >= 1.5) or self.from_coin_direction < self.dir_threshold) or self.from_coin_price < self.active_threshold < self.next_price and self.equi or self.rv_rsi < 20 or min(self.vector[:-2]) >= self.vector[-1] or self.strikes >= self.calcval:
+            if can_buy and ((self.rv_pre_rsi > self.rv_rsi and ((self.from_coin_direction < 0 and self.from_coin_price < self.active_threshold) or self.volume[-1] / self.volume_sma >= 1.5) or self.from_coin_direction < self.dir_threshold) or self.from_coin_price < self.active_threshold < self.next_price and self.equi or self.rv_rsi < 20 or min(self.vector[:-2]) >= self.vector[-1] or self.strikes >= self.calcval):
                 if self.strikes >= self.calcval:
                     print("")
                     self.logger.info("!!! Strike out buy !!!")
@@ -226,7 +226,7 @@ class Strategy(AutoTrader):
                     self.panic_time = self.manager.now().replace(second=0, microsecond=0) + timedelta(minutes=1) #int(self.config.RSI_CANDLE_TYPE))
 
 
-        elif self.macd and base_time >= self.panic_time and can_sell:
+        elif self.macd and base_time >= self.panic_time:
             #m = max(2 - (1+self.win/balance)**(1/(self.jumps)), 2 - 2**(1/(self.jumps)))-0.001
             n = min(len(self.reverse_price_history), self.calcval)
             stdev = st.stdev(numpy.array(self.reverse_price_history[-n:]))# * 0.73313783
@@ -234,7 +234,7 @@ class Strategy(AutoTrader):
 
             self.panic_time = self.manager.now().replace(second=0, microsecond=0) + timedelta(seconds=1)
 
-            if self.macd and (self.rv_pre_rsi < self.rv_rsi and ((self.from_coin_direction > 0 and self.from_coin_price > self.active_threshold) or self.volume[-1] / self.volume_sma >= 1.5) or self.from_coin_direction > self.dir_threshold) or self.from_coin_price > self.active_threshold > self.next_price and self.equi or self.rv_rsi > 80 or max(self.vector[:-2]) <= self.vector[-1] or self.strikes >= self.calcval:
+            if can_sell and ((self.rv_pre_rsi < self.rv_rsi and ((self.from_coin_direction > 0 and self.from_coin_price > self.active_threshold) or self.volume[-1] / self.volume_sma >= 1.5) or self.from_coin_direction > self.dir_threshold) or self.from_coin_price > self.active_threshold > self.next_price and self.equi or self.rv_rsi > 80 or max(self.vector[:-2]) <= self.vector[-1] or self.strikes >= self.calcval):
                 
                 if self.strikes >= self.calcval:
                     print("")
