@@ -3,7 +3,7 @@ sqlalchemy==1.4.25
 schedule==1.1.0
 apprise==0.9.5.1
 Flask==2.2.5
-gunicorn==20.1.0
+gunicorn==22.0.0
 flask-cors==3.0.10
 flask-socketio==5.0.1
 eventlet==0.31.0
@@ -21,3 +21,6 @@ numpy
 websockets>=10.0 # not directly required, pinned by Snyk to avoid a vulnerability
 setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
 werkzeug>=3.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
+aiohttp>=3.9.4 # not directly required, pinned by Snyk to avoid a vulnerability
+requests>=2.32.2 # not directly required, pinned by Snyk to avoid a vulnerability
+urllib3>=2.2.2 # not directly required, pinned by Snyk to avoid a vulnerability
