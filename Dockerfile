@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y rustc
 COPY requirements.txt /requirements.txt
 RUN pip install --prefix=/install -r /requirements.txt
 
-FROM python:3.12-rc-slim
+FROM python:3.15-rc-slim
 
 WORKDIR /app
 
